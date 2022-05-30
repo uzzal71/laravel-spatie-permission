@@ -140,7 +140,7 @@ class User extends Authenticatable
 }
 ```
 
-#### Create Project Model
+#### Create Product Model
 ```
 php artisan make:model Product
 ```
@@ -162,4 +162,16 @@ class Product extends Model
         'name', 'detail'
     ];
 }
+```
+
+## Step 6 : Add Middleware
+
+#### Spatie package provide it's in-built middleware, add middleware in Kernel.php file
+```
+protected $routeMiddleware = [
+    ....
+    'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+    'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+    'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+]
 ```
