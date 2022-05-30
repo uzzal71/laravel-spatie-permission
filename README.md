@@ -104,3 +104,62 @@ class CreateProductsTable extends Migration
 ```
 php artisan migrate
 ```
+
+## Step 5 : Create Models
+
+#### Now, create app/Models/User.php 
+```
+<?php
+  
+namespace App\Models;
+  
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+  
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable, HasRoles;
+  
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+  
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+  
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+}
+```
+
+#### Create Project Model
+```
+php artisan make:model Product
+```
+
+#### After that create app/Models/Product.php
+```
+<?php
+  
+namespace App\Models;
+  
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+  
+class Product extends Model
+{
+    use HasFactory;
+  
+    protected $fillable = [
+        'name', 'detail'
+    ];
+}
+```
