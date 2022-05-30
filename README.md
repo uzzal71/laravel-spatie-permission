@@ -1024,7 +1024,10 @@ class RoleController extends Controller
         <td>{{ ++$i }}</td>
         <td>{{ $role->name }}</td>
         <td>
+            @can('roles.show')
             <a class="btn btn-info" href="{{ route('roles.show',$role->id) }}">Show</a>
+            @canend
+            
             @can('roles.edit')
                 <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
             @endcan
@@ -1472,4 +1475,22 @@ class CreateAdminUserSeeder extends Seeder
 #### Run the below command in your terminal.
 ```
 php artisan db:seed --class=CreateAdminUserSeeder
+```
+
+## End
+
+#### Run your project
+```
+php artisan serve
+```
+
+#### Goto your fevarit browser
+```
+127.0.0.1:8000
+```
+
+#### Login
+```
+username or email: bangladesh@gamil.com
+password: 12345678
 ```
