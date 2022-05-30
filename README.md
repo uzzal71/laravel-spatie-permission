@@ -230,6 +230,19 @@ use Illuminate\Support\Arr;
     
 class UserController extends Controller
 {
+	/**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    function __construct()
+    {
+         $this->middleware('permission:users.index|users.create|users.edit|users.delete', ['only' => ['index','show']]);
+         $this->middleware('permission:users.create', ['only' => ['create','store']]);
+         $this->middleware('permission:users.edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:users.delete', ['only' => ['destroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -371,10 +384,10 @@ class ProductController extends Controller
      */
     function __construct()
     {
-         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:products.index|products.create|products.edit|products.delete', ['only' => ['index','show']]);
+         $this->middleware('permission:products.create', ['only' => ['create','store']]);
+         $this->middleware('permission:products.edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:products.delete', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -497,10 +510,10 @@ class RoleController extends Controller
      */
     function __construct()
     {
-         $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:role-create', ['only' => ['create','store']]);
-         $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:roles.index|roles.create|roles.edit|roles.delete', ['only' => ['index','store']]);
+         $this->middleware('permission:roles.create', ['only' => ['create','store']]);
+         $this->middleware('permission:roles.edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:roles.delete', ['only' => ['destroy']]);
     }
     
     /**
@@ -614,4 +627,722 @@ class RoleController extends Controller
                         ->with('success','Role deleted successfully');
     }
 }
+```
+
+
+## Step 9 : Create Blade File
+1. For theme layout we will create an app.blade.php file
+
+2. For the Users Module we will create index.blade.php, create.blade.php, edit.blade.php, show.blade.php file
+
+3. For the Roles Module we will create index.blade.php, create.blade.php, edit.blade.php, show.blade.php file
+
+4. For the Product Module we will create index.blade.php, create.blade.php, edit.blade.php, show.blade.php file
+
+
+#### 1. resources/views/layouts/app.blade.php
+```
+<html lang="{{ app()->getLocale() }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'Laravel 9 User Role and Permission - Websolutionstuff') }}</title>
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}" defer></script>
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url('/') }}">
+                    Laravel 9 User Role and Permission - Websolutionstuff
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+    
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Left Side Of Navbar -->
+                    <ul class="navbar-nav mr-auto"></ul>
+
+
+                    <!-- Right Side Of Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Authentication Links -->
+                        @guest
+                            <li><a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a></li>
+                            <li><a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a></li>
+                        @else
+                            <li><a class="nav-link" href="{{ route('users.index') }}">Manage Users</a></li>
+                            <li><a class="nav-link" href="{{ route('roles.index') }}">Manage Role</a></li>
+                            <li><a class="nav-link" href="{{ route('products.index') }}">Manage Product</a></li>
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->name }} <span class="caret"></span>
+                                </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        {{ __('Logout') }}
+                                    </a>
+
+
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                        @csrf
+                                    </form>
+                                </div>
+                            </li>
+                        @endguest
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <main class="py-4">
+            <div class="container">
+            @yield('content')
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+```
+
+### 2. For User
+
+#### resources/views/users/index.blade.php
+```
+@extends('layouts.app')
+
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Users Management</h2>
+        </div>
+        <div class="pull-right">
+            @can('users.create')
+            <a class="btn btn-success" href="{{ route('users.create') }}"> Create New User </a>
+            @endif
+        </div>
+    </div>
+</div>
+
+
+@if ($message = Session::get('success'))
+<div class="alert alert-success">
+  <p>{{ $message }}</p>
+</div>
+@endif
+
+
+<table class="table table-bordered">
+ <tr>
+   <th>No</th>
+   <th>Name</th>
+   <th>Email</th>
+   <th>Roles</th>
+   <th width="280px">Action</th>
+ </tr>
+ @foreach ($data as $key => $user)
+  <tr>
+    <td>{{ ++$i }}</td>
+    <td>{{ $user->name }}</td>
+    <td>{{ $user->email }}</td>
+    <td>
+      @if(!empty($user->getRoleNames()))
+        @foreach($user->getRoleNames() as $v)
+           <label class="badge badge-success">{{ $v }}</label>
+        @endforeach
+      @endif
+    </td>
+    <td>
+        @can('users.show')
+       <a class="btn btn-info" href="{{ route('users.show',$user->id) }}">Show</a>
+       @endif
+
+       @can('users.edit')
+       <a class="btn btn-primary" href="{{ route('users.edit',$user->id) }}">Edit</a>
+       @endif
+
+        {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
+            @can('users.delete')
+            {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+            @endif
+        {!! Form::close() !!}
+    </td>
+  </tr>
+ @endforeach
+</table>
+
+
+{!! $data->render() !!}
+
+@endsection
+```
+
+#### resources/views/users/create.blade.php
+```
+@extends('layouts.app')
+
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Create New User</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('users.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+@if (count($errors) > 0)
+  <div class="alert alert-danger">
+    <strong>Whoops!</strong>Something went wrong.<br><br>
+    <ul>
+       @foreach ($errors->all() as $error)
+         <li>{{ $error }}</li>
+       @endforeach
+    </ul>
+  </div>
+@endif
+
+
+
+{!! Form::open(array('route' => 'users.store','method'=>'POST')) !!}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Email:</strong>
+            {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Password:</strong>
+            {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Confirm Password:</strong>
+            {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Role:</strong>
+            {!! Form::select('roles[]', $roles,[], array('class' => 'form-control','multiple')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</div>
+{!! Form::close() !!}
+
+@endsection
+```
+
+#### resources/views/users/edit.blade.php
+```
+@extends('layouts.app')
+
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Edit New User</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('users.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+@if (count($errors) > 0)
+  <div class="alert alert-danger">
+    <strong>Whoops!</strong> Something went wrong.<br><br>
+    <ul>
+       @foreach ($errors->all() as $error)
+         <li>{{ $error }}</li>
+       @endforeach
+    </ul>
+  </div>
+@endif
+
+
+{!! Form::model($user, ['method' => 'PATCH','route' => ['users.update', $user->id]]) !!}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Email:</strong>
+            {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Password:</strong>
+            {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Confirm Password:</strong>
+            {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Role:</strong>
+            {!! Form::select('roles[]', $roles,$userRole, array('class' => 'form-control','multiple')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</div>
+{!! Form::close() !!}
+
+
+@endsection
+```
+
+#### resources/views/users/show.blade.php
+
+```
+@extends('layouts.app')
+
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2> Show User</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('users.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {{ $user->name }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Email:</strong>
+            {{ $user->email }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Roles:</strong>
+            @if(!empty($user->getRoleNames()))
+                @foreach($user->getRoleNames() as $v)
+                    <label class="badge badge-success">{{ $v }}</label>
+                @endforeach
+            @endif
+        </div>
+    </div>
+</div>
+@endsection
+```
+
+## 3. For Roles
+
+#### resources/views/roles/index.blade.php
+
+```
+@extends('layouts.app')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Role Management</h2>
+        </div>
+        <div class="pull-right">
+        @can('roles.create')
+            <a class="btn btn-success" href="{{ route('roles.create') }}"> Create New Role </a>
+            @endcan
+        </div>
+    </div>
+</div>
+
+
+@if ($message = Session::get('success'))
+    <div class="alert alert-success">
+        <p>{{ $message }}</p>
+    </div>
+@endif
+
+
+<table class="table table-bordered">
+  <tr>
+     <th>No</th>
+     <th>Name</th>
+     <th width="280px">Action</th>
+  </tr>
+    @foreach ($roles as $key => $role)
+    <tr>
+        <td>{{ ++$i }}</td>
+        <td>{{ $role->name }}</td>
+        <td>
+            <a class="btn btn-info" href="{{ route('roles.show',$role->id) }}">Show</a>
+            @can('roles.edit')
+                <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
+            @endcan
+            @can('roles.delete')
+                {!! Form::open(['method' => 'DELETE','route' => ['roles.destroy', $role->id],'style'=>'display:inline']) !!}
+                    {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
+                {!! Form::close() !!}
+            @endcan
+        </td>
+    </tr>
+    @endforeach
+</table>
+
+{!! $roles->render() !!}
+
+@endsection
+```
+
+#### resources/views/roles/create.blade.php
+```
+@extends('layouts.app')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Create New Role</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('roles.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+@if (count($errors) > 0)
+    <div class="alert alert-danger">
+        <strong>Whoops!</strong> Something went wrong.<br><br>
+        <ul>
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+        </ul>
+    </div>
+@endif
+
+{!! Form::open(array('route' => 'roles.store','method'=>'POST')) !!}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Permission:</strong>
+            <br/>
+            @foreach($permission as $value)
+                <label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
+                {{ $value->name }}</label>
+            <br/>
+            @endforeach
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</div>
+{!! Form::close() !!}
+
+@endsection
+```
+
+#### resources/views/roles/edit.blade.php
+```@extends('layouts.app')
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2>Edit Role</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('roles.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+@if (count($errors) > 0)
+    <div class="alert alert-danger">
+        <strong>Whoops!</strong> something went wrong.<br><br>
+        <ul>
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+        </ul>
+    </div>
+@endif
+
+{!! Form::model($role, ['method' => 'PATCH','route' => ['roles.update', $role->id]]) !!}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Permission:</strong>
+            <br/>
+            @foreach($permission as $value)
+                <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
+                {{ $value->name }}</label>
+            <br/>
+            @endforeach
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</div>
+{!! Form::close() !!}
+
+
+@endsection
+```
+
+#### resources/views/roles/show.blade.php
+```
+@extends('layouts.app')
+
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="pull-left">
+            <h2> Show Role</h2>
+        </div>
+        <div class="pull-right">
+            <a class="btn btn-primary" href="{{ route('roles.index') }}"> Back </a>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Name:</strong>
+            {{ $role->name }}
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Permissions:</strong>
+            @if(!empty($rolePermissions))
+                @foreach($rolePermissions as $v)
+                    <label class="label label-success">{{ $v->name }},</label>
+                @endforeach
+            @endif
+        </div>
+    </div>
+</div>
+@endsection
+```
+
+### 3. For Product
+
+#### resources/views/products/index.blade.php
+```
+@extends('layouts.app')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-left">
+                <h2>Products</h2>
+            </div>
+            <div class="pull-right">
+                @can('products.create')
+                <a class="btn btn-success" href="{{ route('products.create') }}"> Create New Product </a>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
+    @endif
+
+    <table class="table table-bordered">
+        <tr>
+            <th>No</th>
+            <th>Name</th>
+            <th>Details</th>
+            <th width="280px">Action</th>
+        </tr>
+	    @foreach ($products as $product)
+	    <tr>
+	        <td>{{ ++$i }}</td>
+	        <td>{{ $product->name }}</td>
+	        <td>{{ $product->detail }}</td>
+	        <td>
+                <form action="{{ route('products.destroy',$product->id) }}" method="POST">
+                    <a class="btn btn-info" href="{{ route('products.show',$product->id) }}">Show</a>
+                    @can('products.edit')
+                    <a class="btn btn-primary" href="{{ route('products.edit',$product->id) }}">Edit</a>
+                    @endcan
+
+
+                    @csrf
+                    @method('DELETE')
+                    @can('products.delete')
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    @endcan
+                </form>
+	        </td>
+	    </tr>
+	    @endforeach
+    </table>
+
+    {!! $products->links() !!}
+
+@endsection
+```
+
+#### resources/views/products/edit.blade.php
+```
+@extends('layouts.app')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-left">
+                <h2>Edit Product</h2>
+            </div>
+            <div class="pull-right">
+                <a class="btn btn-primary" href="{{ route('products.index') }}"> Back </a>
+            </div>
+        </div>
+    </div>
+
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>Whoops!</strong> Something went wrong.<br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+
+    <form action="{{ route('products.update',$product->id) }}" method="POST">
+    	@csrf
+        @method('PUT')
+
+         <div class="row">
+		    <div class="col-xs-12 col-sm-12 col-md-12">
+		        <div class="form-group">
+		            <strong>Name:</strong>
+		            <input type="text" name="name" value="{{ $product->name }}" class="form-control" placeholder="Name">
+		        </div>
+		    </div>
+		    <div class="col-xs-12 col-sm-12 col-md-12">
+		        <div class="form-group">
+		            <strong>Detail:</strong>
+		            <textarea class="form-control" style="height:150px" name="detail" placeholder="Detail">{{ $product->detail }}</textarea>
+		        </div>
+		    </div>
+		    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+		      <button type="submit" class="btn btn-primary">Submit</button>
+		    </div>
+		</div>
+
+
+    </form>
+
+@endsection
+```
+
+#### resources/views/products/show.blade.php
+```
+@extends('layouts.app')
+
+@section('content')
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-left">
+                <h2> Show Product</h2>
+            </div>
+            <div class="pull-right">
+                <a class="btn btn-primary" href="{{ route('products.index') }}"> Back </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Name:</strong>
+                {{ $product->name }}
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="form-group">
+                <strong>Details:</strong>
+                {{ $product->detail }}
+            </div>
+        </div>
+    </div>
+@endsection
 ```
