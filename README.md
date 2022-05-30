@@ -1346,3 +1346,130 @@ class RoleController extends Controller
     </div>
 @endsection
 ```
+
+## Step 10: Create Seeder For Permissions and AdminUser
+
+Now, we will add seeder for permission
+
+1. users.index
+
+2. users.create
+
+3. users.edit
+
+4. users.delete
+
+5. roles.index
+
+6. roles.create
+
+7. roles.edit
+
+8. roles.delete
+
+9. products.index
+
+10. products.create
+
+11. products.edit
+
+12. products.delete
+
+
+#### Now, run the below command
+
+```
+php artisan make:seeder PermissionTableSeeder
+```
+
+#### Now, copy code in this database/seeds/PermissionTableSeeder.php file as below.
+```
+<?php
+  
+namespace Database\Seeders;
+  
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+  
+class PermissionTableSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $permissions = [
+           'users.index',
+           'users.create',
+           'users.edit',
+           'users.delete',
+           'roles.index',
+           'roles.create',
+           'roles.edit',
+           'roles.delete',
+           'products.index',
+           'products.create',
+           'products.edit',
+           'products.delete'
+        ];
+     
+        foreach ($permissions as $permission) {
+             Permission::create(['name' => $permission]);
+        }
+    }
+}
+```
+
+#### Now, run the below command in your terminal
+```
+php artisan db:seed --class=PermissionTableSeeder
+```
+
+#### Now, create a new seeder for creating admin users.
+```
+php artisan make:seeder CreateAdminUserSeeder
+```
+
+#### Now, copy the below code database/seeds/CreateAdminUserSeeder.php in this file.
+```
+<?php
+  
+namespace Database\Seeders;
+  
+use Illuminate\Database\Seeder;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+  
+class CreateAdminUserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $user = User::create([
+            'name' => 'Bangladesh', 
+            'email' => 'bangladesh@gmail.com',
+            'password' => bcrypt('12345678')
+        ]);
+    
+        $role = Role::create(['name' => 'Admin']);
+     
+        $permissions = Permission::pluck('id','id')->all();
+   
+        $role->syncPermissions($permissions);
+     
+        $user->assignRole([$role->id]);
+    }
+}
+```
+
+#### Run the below command in your terminal.
+```
+php artisan db:seed --class=CreateAdminUserSeeder
+```
