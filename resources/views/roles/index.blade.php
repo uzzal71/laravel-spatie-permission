@@ -33,10 +33,9 @@
         <td>{{ ++$i }}</td>
         <td>{{ $role->name }}</td>
         <td>
-            @can('roles.show')
+            @can('roles.create')
             <a class="btn btn-info" href="{{ route('roles.show',$role->id) }}">Show</a>
-            @canend
-            
+            @endcan
             @can('roles.edit')
                 <a class="btn btn-primary" href="{{ route('roles.edit',$role->id) }}">Edit</a>
             @endcan
