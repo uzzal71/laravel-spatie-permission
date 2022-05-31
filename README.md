@@ -649,7 +649,7 @@ class RoleController extends Controller
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel 9 User Role and Permission - Websolutionstuff') }}</title>
+    <title>{{ config('app.name', 'Laravel 9 User Role and Permission') }}</title>
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <!-- Fonts -->
@@ -663,7 +663,7 @@ class RoleController extends Controller
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    Laravel 9 User Role and Permission - Websolutionstuff
+                    Laravel 9 User Role and Permission
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
