@@ -11,7 +11,7 @@ composer create-project --prefer-dist laravel/laravel laravel-spatie-permission
 php artisan serve
 ```
 
-#### Goto your fevarit browser
+#### Goto your favorite browser
 ```
 127.0.0.1:8000
 ```
@@ -1486,7 +1486,7 @@ php artisan db:seed --class=CreateAdminUserSeeder
 php artisan serve
 ```
 
-#### Goto your fevarit browser
+#### Goto your favorite browser
 ```
 127.0.0.1:8000
 ```
