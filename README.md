@@ -1,4 +1,4 @@
-# laravel-spatie-permission
+# Laravel spatie permission
 Laravel Role &amp; Permission With Spatie Package
 
 ## Step 1 : Laravel 9 project create
